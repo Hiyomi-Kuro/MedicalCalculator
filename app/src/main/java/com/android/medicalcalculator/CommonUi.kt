@@ -19,7 +19,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -32,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
@@ -53,94 +60,229 @@ val calculators = listOf(
     CalculatorInfo("mayoscore", "溃疡性结肠炎 Mayo 评分", "完整、改良及部分 Mayo 评分", "IBD", listOf("Mayo", "Mayo Score", "溃疡性结肠炎", "溃结", "UC", "IBD", "直肠出血", "内镜评分"), Routes.MAYO)
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(onOpen: (String) -> Unit) {
     var search by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("全部") }
-    val categories = listOf("全部") + calculators.map { it.category }.distinct()
+
+    val categories =
+        listOf("全部") + calculators.map { it.category }.distinct()
+
     val keyword = search.trim().lowercase()
+
     val filtered = calculators.filter { item ->
-        val matchesCategory = category == "全部" || item.category == category
-        val searchable = (listOf(item.title, item.description, item.category) + item.keywords).joinToString(" ").lowercase()
-        matchesCategory && (keyword.isBlank() || searchable.contains(keyword))
+        val matchesCategory =
+            category == "全部" || item.category == category
+
+        val searchable =
+            (
+                listOf(
+                    item.title,
+                    item.description,
+                    item.category
+                ) + item.keywords
+            )
+                .joinToString(" ")
+                .lowercase()
+
+        matchesCategory &&
+            (
+                keyword.isBlank() ||
+                    searchable.contains(keyword)
+            )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp)
-    ) {
-        Text("医学计算器", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("常用临床医学评分与计算工具", style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = search,
-            onValueChange = {
-                search = it
-                if (it.trim().isNotEmpty()) category = "全部"
-            },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("搜索计算器，如 BMI、FIB-4") },
-            singleLine = true,
-            trailingIcon = {
-                if (search.isNotEmpty()) {
-                    TextButton(onClick = {
-                        search = ""
-                        category = "全部"
-                    }) { Text("清除") }
-                }
-            }
-        )
-
-        Spacer(Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            categories.forEach { item ->
-                if (category == item) {
-                    Button(onClick = { category = item }) { Text(item) }
-                } else {
-                    OutlinedButton(onClick = { category = item }) { Text(item) }
-                }
-            }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "医学计算器",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
+                )
+            )
         }
+    ) { innerPadding ->
 
-        Spacer(Modifier.height(20.dp))
-        Text(if (category == "全部") "全部工具" else category, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 16.dp
+                )
+        ) {
 
-        if (filtered.isEmpty()) {
-            Text("未找到相关计算器", modifier = Modifier.padding(vertical = 24.dp))
-        } else {
-            filtered.forEach { item ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp)
-                        .clickable { onOpen(item.route) },
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(item.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                            Spacer(Modifier.width(8.dp))
-                            Surface(shape = RoundedCornerShape(12.dp), tonalElevation = 2.dp) {
-                                Text(item.category, style = MaterialTheme.typography.labelMedium, modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+            Text(
+                text = "常用临床医学评分与计算工具",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(Modifier.height(20.dp))
+
+            OutlinedTextField(
+                value = search,
+                onValueChange = {
+                    search = it
+
+                    if (it.trim().isNotEmpty()) {
+                        category = "全部"
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text("搜索计算器，如 BMI、FIB-4")
+                },
+                trailingIcon = {
+                    if (search.isNotEmpty()) {
+                        IconButton(
+                            onClick = {
+                                search = ""
+                                category = "全部"
                             }
+                        ) {
+                            Text(
+                                text = "×",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                        Spacer(Modifier.height(6.dp))
-                        Text(item.description, style = MaterialTheme.typography.bodyMedium)
+                    }
+                },
+                shape = RoundedCornerShape(28.dp),
+                singleLine = true
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier.horizontalScroll(
+                    rememberScrollState()
+                ),
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp)
+            ) {
+                categories.forEach { item ->
+                    FilterChip(
+                        selected = category == item,
+                        onClick = {
+                            category = item
+                        },
+                        label = {
+                            Text(item)
+                        }
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(24.dp))
+
+            Text(
+                text =
+                    if (category == "全部") {
+                        "全部工具"
+                    } else {
+                        category
+                    },
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(Modifier.height(10.dp))
+
+            if (filtered.isEmpty()) {
+                Text(
+                    text = "未找到相关计算器",
+                    modifier = Modifier.padding(
+                        vertical = 24.dp
+                    ),
+                    color =
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                filtered.forEach { item ->
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .clickable {
+                                onOpen(item.route)
+                            },
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                        ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 0.dp
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(
+                                horizontal = 18.dp,
+                                vertical = 16.dp
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = item.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    modifier = Modifier.weight(1f)
+                                )
+
+                                Spacer(Modifier.width(10.dp))
+
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = MaterialTheme.colorScheme.secondaryContainer
+                                ) {
+                                    Text(
+                                        text = item.category,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(
+                                            horizontal = 10.dp,
+                                            vertical = 5.dp
+                                        )
+                                    )
+                                }
+                            }
+
+                            Spacer(Modifier.height(8.dp))
+
+                            Text(
+                                text = item.description,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
+            Spacer(Modifier.height(24.dp))
         }
-        Spacer(Modifier.height(24.dp))
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalculatorPage(
     title: String,
@@ -150,24 +292,69 @@ fun CalculatorPage(
     scopeNotice: String? = null,
     content: @Composable () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        TextButton(onClick = onBack) { Text("← 返回") }
-        Text(title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text(subtitle, style = MaterialTheme.typography.bodyMedium)
-        if (onReference != null) {
-            TextButton(onClick = onReference) { Text("参考依据") }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        containerColor = MaterialTheme.colorScheme.background,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Text(
+                            text = "←",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                },
+                actions = {
+                    if (onReference != null) {
+                        TextButton(onClick = onReference) {
+                            Text("参考依据")
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
+                    actionIconContentColor = MaterialTheme.colorScheme.primary
+                )
+            )
         }
-        if (!scopeNotice.isNullOrBlank()) {
-            NoticeBox(scopeNotice)
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 12.dp
+                )
+        ) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (!scopeNotice.isNullOrBlank()) {
+                Spacer(Modifier.height(8.dp))
+                NoticeBox(scopeNotice)
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            content()
+
+            Spacer(Modifier.height(28.dp))
         }
-        Spacer(Modifier.height(8.dp))
-        content()
-        Spacer(Modifier.height(28.dp))
     }
 }
 
