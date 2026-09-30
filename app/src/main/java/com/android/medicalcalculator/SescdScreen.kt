@@ -126,7 +126,9 @@ fun SescdScreen(onBack: () -> Unit, onReference: () -> Unit) {
 
     val available = segments.filter { !it.unavailable }
     val totalScore = if (available.all { it.subtotal() != null }) {
-        available.sumOf { it.subtotal() ?: 0 }
+        val nonStenosis = available.sumOf { (it.ulcerSize ?: 0) + (it.ulceratedSurface ?: 0) + (it.affectedSurface ?: 0) }
+        val stenosis = minOf(11, available.sumOf { it.stenosis ?: 0 })
+        nonStenosis + stenosis
     } else null
     val hasUnavailable = segments.any { it.unavailable }
 

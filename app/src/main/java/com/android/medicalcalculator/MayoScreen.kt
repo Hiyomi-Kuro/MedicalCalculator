@@ -13,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -73,13 +73,13 @@ private fun MayoOptionGroup(selected: Int?, options: List<MayoOption>, onSelect:
 
 @Composable
 fun MayoScreen(onBack: () -> Unit, onReference: () -> Unit) {
-    var mode by remember { mutableStateOf("full") }
-    var stool by remember { mutableStateOf<Int?>(null) }
-    var classicBleeding by remember { mutableStateOf<Int?>(null) }
-    var modifiedBleeding by remember { mutableStateOf<Int?>(null) }
-    var pga by remember { mutableStateOf<Int?>(null) }
-    var classicEndoscopy by remember { mutableStateOf<Int?>(null) }
-    var modifiedEndoscopy by remember { mutableStateOf<Int?>(null) }
+    var mode by rememberSaveable { mutableStateOf("full") }
+    var stool by rememberSaveable { mutableStateOf<Int?>(null) }
+    var classicBleeding by rememberSaveable { mutableStateOf<Int?>(null) }
+    var modifiedBleeding by rememberSaveable { mutableStateOf<Int?>(null) }
+    var pga by rememberSaveable { mutableStateOf<Int?>(null) }
+    var classicEndoscopy by rememberSaveable { mutableStateOf<Int?>(null) }
+    var modifiedEndoscopy by rememberSaveable { mutableStateOf<Int?>(null) }
 
     val required = when (mode) {
         "modified" -> listOf(stool, modifiedBleeding, modifiedEndoscopy)

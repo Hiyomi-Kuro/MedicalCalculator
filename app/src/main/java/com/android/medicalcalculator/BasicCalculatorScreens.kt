@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -16,10 +17,10 @@ import kotlin.math.sqrt
 
 @Composable
 fun BmiScreen(onBack: () -> Unit, onReference: () -> Unit) {
-    var height by remember { mutableStateOf("") }
-    var weight by remember { mutableStateOf("") }
+    var height by rememberSaveable { mutableStateOf("") }
+    var weight by rememberSaveable { mutableStateOf("") }
     var result by remember { mutableStateOf<Pair<Double, String>?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     fun clearResult() {
         result = null
@@ -89,12 +90,12 @@ data class Fib4Result(val value: Double, val riskText: String, val note: String)
 
 @Composable
 fun Fib4Screen(onBack: () -> Unit, onReference: () -> Unit) {
-    var age by remember { mutableStateOf("") }
-    var ast by remember { mutableStateOf("") }
-    var alt by remember { mutableStateOf("") }
-    var platelets by remember { mutableStateOf("") }
+    var age by rememberSaveable { mutableStateOf("") }
+    var ast by rememberSaveable { mutableStateOf("") }
+    var alt by rememberSaveable { mutableStateOf("") }
+    var platelets by rememberSaveable { mutableStateOf("") }
     var result by remember { mutableStateOf<Fib4Result?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     fun clearResult() {
         result = null
@@ -179,13 +180,13 @@ data class ChildResult(
 
 @Composable
 fun ChildPughScreen(onBack: () -> Unit, onReference: () -> Unit) {
-    var bilirubin by remember { mutableStateOf("") }
-    var albumin by remember { mutableStateOf("") }
-    var inr by remember { mutableStateOf("") }
-    var ascitesScore by remember { mutableStateOf<Int?>(null) }
-    var encephalopathyScore by remember { mutableStateOf<Int?>(null) }
+    var bilirubin by rememberSaveable { mutableStateOf("") }
+    var albumin by rememberSaveable { mutableStateOf("") }
+    var inr by rememberSaveable { mutableStateOf("") }
+    var ascitesScore by rememberSaveable { mutableStateOf<Int?>(null) }
+    var encephalopathyScore by rememberSaveable { mutableStateOf<Int?>(null) }
     var result by remember { mutableStateOf<ChildResult?>(null) }
-    var error by remember { mutableStateOf<String?>(null) }
+    var error by rememberSaveable { mutableStateOf<String?>(null) }
 
     fun clearResult() {
         result = null
